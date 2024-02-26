@@ -12,6 +12,11 @@ class MenuItemPage {
         get() = `$`(Selectors.byXpath("//a[@href='/basic_auth']"))
     private val contextMenuItem: SelenideElement
         get() = `$`(Selectors.byXpath("//a[@href='/context_menu']"))
+    private val challengingDomMenuItem: SelenideElement
+        get() = `$`(Selectors.byXpath("//a[@href='/challenging_dom']"))
+
+    private val brokenImagesMenuItem: SelenideElement
+        get() = `$`(Selectors.byXpath("//a[@href='/broken_images']"))
 
     @Step("Open: страница Add/Remove Elements")
     fun openAddRemoveElementsItem() : AddRemoveElementsPage {
@@ -29,5 +34,17 @@ class MenuItemPage {
     fun openContextMenuPage() : ContextMenuPage {
         contextMenuItem.click()
         return ContextMenuPage()
+    }
+
+    @Step("Open: страница Challenging DOM")
+    fun openChallengingDomPage(): ChallengingDomPage {
+        challengingDomMenuItem.click()
+        return ChallengingDomPage()
+    }
+
+    @Step("Open: страница Broken Images")
+    fun openBrokenImagesPage(): BrokenImagesPage {
+        brokenImagesMenuItem.click()
+        return BrokenImagesPage()
     }
 }

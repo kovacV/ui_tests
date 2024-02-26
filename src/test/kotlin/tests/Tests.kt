@@ -1,12 +1,22 @@
 package tests
 
 import BaseTest
+import com.codeborne.selenide.Condition
+import com.codeborne.selenide.Condition.attribute
+import com.codeborne.selenide.Condition.visible
+import com.codeborne.selenide.Selectors
+import com.codeborne.selenide.Selenide
 import com.codeborne.selenide.Selenide.webdriver
+import com.codeborne.selenide.WebDriverConditions
 import com.codeborne.selenide.WebDriverConditions.url
 import com.codeborne.selenide.logevents.SelenideLogger.step
 import config.ConfigManager
+import io.qameta.allure.Allure
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import pages.BrokenImagesPage
 import pages.MenuItemPage
 
 class Tests : BaseTest() {
@@ -61,5 +71,32 @@ class Tests : BaseTest() {
             .openContextMenuPage()
             .callContextMenu()
             .verifyContextMenuIsOpen()
+    }
+
+    @Test
+    @DisplayName("При нажатии на кнопку с меняющимся ID - должно измениться циферное значение в блоке canvas")
+    fun canvasValueShouldBeChangedAfterClickButton() {
+        val challengingDomPage = MenuItemPage().openChallengingDomPage()
+
+        val oldValue = challengingDomPage.getAnswerValue()
+        challengingDomPage.blueButton.click()
+        val newValue = challengingDomPage.getAnswerValue()
+
+        Allure.step("Циферное значение поля Answer изменено").run { assertNotEquals(oldValue,newValue) }
+    }
+
+    @Test
+    @DisplayName("")
+    fun imagesShouldBeNotBroken() {
+        val brokenImagesPage = MenuItemPage().openBrokenImagesPage()
+
+        val images = brokenImagesPage.images
+
+        for (image in images) {
+            // Проверяем, что изображение видимо на странице
+            println(image.isImage)
+            println(image.getAttribute("src"))
+        }
+        //Assertions
     }
 }
