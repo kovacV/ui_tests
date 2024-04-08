@@ -15,6 +15,12 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     implementation("com.codeborne:selenide:7.0.4")
     testImplementation("io.qameta.allure:allure-junit5:2.24.0")
+
+        //TODELETE
+    implementation("org.apache.httpcomponents.client5:httpclient5:5.3.1")
+    implementation("org.apache.httpcomponents:httpcore:4.4.14")
+    // https://mvnrepository.com/artifact/commons-codec/commons-codec
+    implementation("commons-codec:commons-codec:1.15")
 }
 
 allure {

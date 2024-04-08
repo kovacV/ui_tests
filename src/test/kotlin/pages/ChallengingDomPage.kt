@@ -14,8 +14,6 @@ class ChallengingDomPage {
         get(): SelenideElement = Selenide.`$`(Selectors.byXpath("//div[contains(@class,'large-10 columns')]"))
     val scriptBlock
         get(): SelenideElement = Selenide.`$`(Selectors.byXpath("//div[@id=\"content\"]/script"))
-//    val blueButton
-//        get(): SelenideElement = Selenide.`$`(".button")
     val blueButton: Button
         get(): Button = Button(Selenide.`$`(".button"), "Синяя кнопка")
     val redButton

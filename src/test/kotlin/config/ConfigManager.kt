@@ -4,7 +4,6 @@ import java.io.IOException
 import java.util.*
 
 object ConfigManager {
-
     val prop: Properties
         get() {
             val prop = Properties()

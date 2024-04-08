@@ -1,22 +1,16 @@
 package tests
 
 import BaseTest
-import com.codeborne.selenide.Condition
-import com.codeborne.selenide.Condition.attribute
-import com.codeborne.selenide.Condition.visible
-import com.codeborne.selenide.Selectors
+import actions.dragAndDropTo
 import com.codeborne.selenide.Selenide
 import com.codeborne.selenide.Selenide.webdriver
-import com.codeborne.selenide.WebDriverConditions
 import com.codeborne.selenide.WebDriverConditions.url
 import com.codeborne.selenide.logevents.SelenideLogger.step
 import config.ConfigManager
 import io.qameta.allure.Allure
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import pages.BrokenImagesPage
 import pages.MenuItemPage
 
 class Tests : BaseTest() {
@@ -74,7 +68,7 @@ class Tests : BaseTest() {
     }
 
     @Test
-    @DisplayName("При нажатии на кнопку с меняющимся ID - должно измениться циферное значение в блоке canvas")
+    @DisplayName("При нажатии на кнопку с меняющимся ID - должно измениться числовое значение в блоке canvas")
     fun canvasValueShouldBeChangedAfterClickButton() {
         val challengingDomPage = MenuItemPage().openChallengingDomPage()
 
@@ -82,21 +76,122 @@ class Tests : BaseTest() {
         challengingDomPage.blueButton.click()
         val newValue = challengingDomPage.getAnswerValue()
 
-        Allure.step("Циферное значение поля Answer изменено").run { assertNotEquals(oldValue,newValue) }
+        Allure.step("Циферное значение поля Answer изменено").run { assertNotEquals(oldValue, newValue) }
     }
 
     @Test
-    @DisplayName("")
+    @DisplayName("Элементы на странице должны быть image")
     fun imagesShouldBeNotBroken() {
         val brokenImagesPage = MenuItemPage().openBrokenImagesPage()
 
         val images = brokenImagesPage.images
 
+
         for (image in images) {
-            // Проверяем, что изображение видимо на странице
-            println(image.isImage)
-            println(image.getAttribute("src"))
+            assertTrue(image.isImage, "image is broken")
         }
-        //Assertions
     }
+
+    @Test
+    @DisplayName("После нажатия на чекбокс - чекбокс должен быть выделен")
+    fun afterClickOnCheckBoxItShouldBeSelected() {
+        val checkboxesPage = MenuItemPage().openCheckboxesPage()
+
+        val checkBox = checkboxesPage
+            .getCheckBox(1)
+            .click()
+        assertTrue(checkBox.isSelected)
+    }
+
+    @Test
+    @DisplayName("Должен быть осуществлен переход по исчезающей кнопке на страницау /gallery")
+    fun galleryPageShouldBeOpenByClickingOnGalleryButton() {
+        MenuItemPage()
+            .openDisappearingElementsPage()
+            .openGallery()
+
+        Allure.step("Страница /gallery открыта").run {
+            webdriver().shouldHave(url(ConfigManager.prop.getProperty("URL") + "/gallery/"))
+        }
+    }
+
+    @Test
+    @DisplayName("Псоле drag n drop хедер элемента \"а\" должен быть равен \"B\"")
+    fun theElementsShouldBeSwapped() {
+        val dragAndDropPage = MenuItemPage().openDragAndDropPage()
+        dragAndDropPage.a.dragAndDropTo(dragAndDropPage.b)
+
+        Allure.step("Хедер элмента а = \"B\"").run {
+            assertEquals(dragAndDropPage.getHeader("a").text(), "B")
+        }
+    }
+
+    @Test
+    @DisplayName("Во всплывающем меню должен быть отображен выбранный пункт")
+    fun choseMenuItemShouldBeDisplayed() {
+        val dropdownPage = MenuItemPage().openDropdownPage()
+        val menuItem = "Option 1"
+
+        dropdownPage
+            .openDropDownMenu()
+            .chooseMenuItem(menuItem)
+            .verifyMenuItemIsSelected(menuItem)
+    }
+
+    @Test
+    @DisplayName("images и текст должны отличаться до и после обновления страницы")
+    fun imagesAndTextsShouldBeDifferentBeforeAndAfterReloadPage() {
+        val dynamicContentPage = MenuItemPage().openDynamicContentPage()
+
+        val imagesBefore = dynamicContentPage.images.attributes("src")
+        val textBlocksBefore = dynamicContentPage.textBlocks.texts()
+
+        Selenide.refresh()
+
+        val imagesAfter = dynamicContentPage.images.attributes("src")
+        val textBlocksAfter = dynamicContentPage.textBlocks.texts()
+
+        Allure.step("Текстовые блоки и images до обновления страницы полностью отличаются от текстовых блоков и images " +
+                "после обновления страницы").run {
+            assertAll("",
+                {
+                    assertNotEquals(
+                        imagesAfter, imagesBefore, "images должны отличаться"
+                    )
+                },
+                {
+                    assertTrue(
+                        textBlocksAfter.intersect(textBlocksBefore.toSet()).isEmpty(),
+                        "Текстовые блоки должны отличаться"
+                    )
+                })
+        }
+    }
+
+    @Test
+    @DisplayName("Во всплывающем меню должен быть отображен выбранный пункт")
+    fun testNhJIW() {
+        val dropdownPage = MenuItemPage().openDynamicControlsPage()
+
+
+
+        //dropdownPage.remove.click()
+    dropdownPage.checkbox.elem
+    }
+
+    /*
+        public static Condition css(final String propName, final String propValue) {
+        return new Condition("css") {
+            @Override
+            public boolean apply(WebElement element) {
+                return propValue.equalsIgnoreCase(element.getCssValue(propName));
+            }
+
+            @Override
+            public String actualValue(WebElement element) {
+                return element.getCssValue(propName);
+            }
+        };
+    }
+     */
 }
