@@ -2,16 +2,24 @@ package tests
 
 import BaseTest
 import actions.dragAndDropTo
-import com.codeborne.selenide.Selenide
+import com.codeborne.selenide.*
+import com.codeborne.selenide.Condition.*
+import com.codeborne.selenide.Selenide.executeJavaScript
 import com.codeborne.selenide.Selenide.webdriver
 import com.codeborne.selenide.WebDriverConditions.url
 import com.codeborne.selenide.logevents.SelenideLogger.step
 import config.ConfigManager
 import io.qameta.allure.Allure
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.function.Executable
+import pages.DynamicLoadingPage
+import pages.DynamicallyLoadedPageElementsPage
 import pages.MenuItemPage
+import java.time.Duration.of
+import java.time.Duration.ofSeconds
 
 class Tests : BaseTest() {
 
@@ -151,8 +159,10 @@ class Tests : BaseTest() {
         val imagesAfter = dynamicContentPage.images.attributes("src")
         val textBlocksAfter = dynamicContentPage.textBlocks.texts()
 
-        Allure.step("Текстовые блоки и images до обновления страницы полностью отличаются от текстовых блоков и images " +
-                "после обновления страницы").run {
+        Allure.step(
+            "Текстовые блоки и images до обновления страницы полностью отличаются от текстовых блоков и images " +
+                    "после обновления страницы"
+        ).run {
             assertAll("",
                 {
                     assertNotEquals(
@@ -169,29 +179,78 @@ class Tests : BaseTest() {
     }
 
     @Test
-    @DisplayName("Во всплывающем меню должен быть отображен выбранный пункт")
-    fun testNhJIW() {
-        val dropdownPage = MenuItemPage().openDynamicControlsPage()
+    @DisplayName("Элементы должны появляться и исчезать по нажатию на button")
+    fun elementsShouldBecomeEnabledOrDisabledByClickingOnButton() {
+        val dynamicControlsPage = MenuItemPage().openDynamicControlsPage()
 
+        dynamicControlsPage.remove.click()
+        Allure.step(
+            "Элемент ${dynamicControlsPage.checkbox.name} должен исчезнуть после нажатия на кнопку ${dynamicControlsPage.remove.name}"
+        ).run {
+            dynamicControlsPage.checkbox.elem.shouldBe(visible.negate(), ofSeconds(4))
+        }
 
+        dynamicControlsPage.add.click()
+        Allure.step(
+            "Элемент ${dynamicControlsPage.checkbox.name} должен появиться после нажатия на кнопку ${dynamicControlsPage.add.name}"
+        ).run {
+            dynamicControlsPage.checkbox.elem.shouldBe(visible, ofSeconds(4))
+        }
 
-        //dropdownPage.remove.click()
-    dropdownPage.checkbox.elem
+        dynamicControlsPage.enable.click()
+        Allure.step(
+            "Элемент ${dynamicControlsPage.input.name} должен стать enabled после нажатия на кнопку ${dynamicControlsPage.enable.name}"
+        ).run {
+            dynamicControlsPage.input.elem.shouldBe(enabled, ofSeconds(4))
+        }
+
+        dynamicControlsPage.disable.click()
+        Allure.step(
+            "Элемент ${dynamicControlsPage.input.name} должен стать disabled после нажатия на кнопку ${dynamicControlsPage.disable.name}"
+        ).run {
+            dynamicControlsPage.input.elem.shouldBe(enabled.negate(), ofSeconds(4))
+        }
     }
 
-    /*
-        public static Condition css(final String propName, final String propValue) {
-        return new Condition("css") {
-            @Override
-            public boolean apply(WebElement element) {
-                return propValue.equalsIgnoreCase(element.getCssValue(propName));
-            }
+    @Test
+    @DisplayName("Проверка, что элемент на странице не отображен, но есть в DOM")
+    fun elementShouldNotVisibleButShouldBeInADom() {
+        val dynamicLoadingPage = MenuItemPage().openDynamicLoadingPage()
 
-            @Override
-            public String actualValue(WebElement element) {
-                return element.getCssValue(propName);
-            }
-        };
+        var hiddenText = dynamicLoadingPage
+            .openExample1Page()
+            .pressStart()
+            .hiddenText
+
+        hiddenText.shouldBe(exist, ofSeconds(0))
+        hiddenText.shouldBe(visible, ofSeconds(6))
     }
-     */
+
+    @Test
+    @DisplayName("Проверка, что элемент на странице не отображен и отсуствует в DOM")
+    fun elementShouldNotVisibleButShouldNotBeInADom() {
+        val dynamicLoadingPage = MenuItemPage().openDynamicLoadingPage()
+
+        var hiddenText = dynamicLoadingPage
+            .openExample2Page()
+            .pressStart()
+            .hiddenText
+
+        hiddenText.shouldBe(exist.negate(), ofSeconds(0))
+        hiddenText.shouldBe(visible, ofSeconds(6))
+    }
+
+    @Test
+    @DisplayName("Модальное окно должно быть закрыто и не препядствует дальнейшим действиям с элементами")
+    fun modalWindowShouldBeClosedAndNotPreventFurtherActionsWithElements() {
+        val entryAdPage = MenuItemPage()
+            .openEntryAdPage()
+
+        entryAdPage.modalWindow.shouldBe(visible)
+        entryAdPage.closeModalWindow()
+        entryAdPage.modalWindow.shouldBe(visible.negate())
+        entryAdPage.clickHereHref.click()
+        entryAdPage.modalWindow.shouldBe(visible)
+        Thread.sleep(2000)
+    }
 }

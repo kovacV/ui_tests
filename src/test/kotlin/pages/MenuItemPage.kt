@@ -32,6 +32,11 @@ class MenuItemPage {
     private val dynamicControlsItem : SelenideElement
         get() = `$`(Selectors.byXpath("//a[@href='/dynamic_controls']"))
 
+    private val dynamicLoadingItem : SelenideElement
+        get() = `$`(Selectors.byXpath("//a[@href='/dynamic_loading']"))
+
+    private val entryAdItem = `$`(Selectors.byXpath("//a[@href='/entry_ad']"))
+
     @Step("Open: страница Add/Remove Elements")
     fun openAddRemoveElementsItem() : AddRemoveElementsPage {
         addRemoveElementsItem.click()
@@ -96,5 +101,17 @@ class MenuItemPage {
     fun openDynamicControlsPage(): DynamicControlsPage {
         dynamicControlsItem.click()
         return DynamicControlsPage()
+    }
+
+    @Step("Open: страница Dynamic Loading")
+    fun openDynamicLoadingPage(): DynamicLoadingPage {
+        dynamicLoadingItem.click()
+        return DynamicLoadingPage()
+    }
+
+    @Step("Open: страница Dynamic Loading")
+    fun openEntryAdPage(): EntryAdPage {
+        entryAdItem.click()
+        return EntryAdPage()
     }
 }
